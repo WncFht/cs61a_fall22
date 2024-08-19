@@ -22,7 +22,18 @@ def roll_dice(num_rolls, dice=six_sided):
     assert type(num_rolls) == int, 'num_rolls must be an integer.'
     assert num_rolls > 0, 'Must roll at least once.'
     # BEGIN PROBLEM 1
-    "*** YOUR CODE HERE ***"
+    isSowSad = False
+    scoreSum = 0
+    for i in range(num_rolls):
+        score = dice()
+        scoreSum += score
+        if score == 1:
+            isSowSad = True
+    
+    if isSowSad:
+        return 1
+    else:
+        return scoreSum
     # END PROBLEM 1
 
 
@@ -33,7 +44,9 @@ def tail_points(opponent_score):
 
     """
     # BEGIN PROBLEM 2
-    "*** YOUR CODE HERE ***"
+    low = opponent_score % 10
+    high = (opponent_score // 10) % 10
+    return 2 * abs(high - low) + 1
     # END PROBLEM 2
 
 
@@ -51,6 +64,11 @@ def take_turn(num_rolls, opponent_score, dice=six_sided):
     assert num_rolls <= 10, 'Cannot roll more than 10 dice.'
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
+    if num_rolls:
+        return roll_dice(num_rolls, dice)
+    else:
+        # Pig Tail
+        return tail_points(opponent_score)
     # END PROBLEM 3
 
 
