@@ -2,7 +2,7 @@
 
 from dice import six_sided, make_test_dice
 from ucb import main, trace, interact
-from math import log2
+from math import log2, sqrt
 
 GOAL = 100  # The goal of Hog is to score 100 points.
 
@@ -91,7 +91,20 @@ def square_update(num_rolls, player_score, opponent_score, dice=six_sided):
 
 
 # BEGIN PROBLEM 4
-"*** YOUR CODE HERE ***"
+def perfect_square(score):
+    d = round(sqrt(score))
+    return d * d == score
+
+def next_perfect_square(score):
+    left = 1
+    right = 100
+    while left < right:
+        mid = (left + right) // 2
+        if mid * mid <= score:
+            left = mid + 1
+        else:
+            right = mid
+    return left * left 
 # END PROBLEM 4
 
 
@@ -130,7 +143,14 @@ def play(strategy0, strategy1, update,
     """
     who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
     # BEGIN PROBLEM 5
-    "*** YOUR CODE HERE ***"
+    while score0 < goal and score1 < goal:
+        if not who:
+            dice_num = strategy0(score0, score1)
+            score0 = update(dice_num, score0, score1, dice)
+        else:
+            dice_num = strategy1(score1, score0)
+            score1 = update(dice_num, score1, score0, dice)
+        who = 1 - who
     # END PROBLEM 5
     return score0, score1
 
@@ -155,7 +175,9 @@ def always_roll(n):
     """
     assert n >= 0 and n <= 10
     # BEGIN PROBLEM 6
-    "*** YOUR CODE HERE ***"
+    def strategy(score, opponent_score):
+        return n 
+    return strategy
     # END PROBLEM 6
 
 
@@ -185,7 +207,14 @@ def is_always_roll(strategy, goal=GOAL):
     False
     """
     # BEGIN PROBLEM 7
-    "*** YOUR CODE HERE ***"
+    same = None
+    for i in range(goal):
+        for j in range(goal):
+            dice_num = strategy(i, j)
+            if same != None and same != dice_num:
+                return False
+            same = dice_num
+    return True
     # END PROBLEM 7
 
 
@@ -201,7 +230,12 @@ def make_averaged(original_function, total_samples=1000):
     3.0
     """
     # BEGIN PROBLEM 8
-    "*** YOUR CODE HERE ***"
+    def simulate(*args):
+        sum  = 0
+        for i in range(total_samples):
+            sum += original_function(*args)
+        return sum / total_samples
+    return simulate
     # END PROBLEM 8
 
 
@@ -215,7 +249,15 @@ def max_scoring_num_rolls(dice=six_sided, total_samples=1000):
     1
     """
     # BEGIN PROBLEM 9
-    "*** YOUR CODE HERE ***"
+    max_score = 0
+    roll_num = -1
+    simulate = make_averaged(roll_dice, total_samples)
+    for i in range(1, 11):
+        temp = simulate(i, dice)
+        if temp > max_score:
+            roll_num = i
+            max_score = temp
+    return roll_num
     # END PROBLEM 9
 
 
@@ -259,6 +301,10 @@ def tail_strategy(score, opponent_score, threshold=12, num_rolls=6):
     points, and returns NUM_ROLLS otherwise. Ignore score and Square Swine.
     """
     # BEGIN PROBLEM 10
+    pig_tail_score = tail_points(opponent_score)
+    if pig_tail_score >= threshold:
+        # using pig_tail
+        return 0
     return num_rolls  # Remove this line once implemented.
     # END PROBLEM 10
 
@@ -266,6 +312,9 @@ def tail_strategy(score, opponent_score, threshold=12, num_rolls=6):
 def square_strategy(score, opponent_score, threshold=12, num_rolls=6):
     """This strategy returns 0 dice when your score would increase by at least threshold."""
     # BEGIN PROBLEM 11
+    tail_score = square_update(0, score, opponent_score)
+    if tail_score - score >= threshold:
+        return 0
     return num_rolls  # Remove this line once implemented.
     # END PROBLEM 11
 
@@ -276,6 +325,16 @@ def final_strategy(score, opponent_score):
     *** YOUR DESCRIPTION HERE ***
     """
     # BEGIN PROBLEM 12
+    tail_score = tail_points(opponent_score)
+    if tail_score >= 6 or score + tail_score > GOAL:
+        return 0
+    
+    # try small roll_num
+    simulate = make_averaged(roll_dice, 100)
+    for i in range(1, 4):
+        get_score = simulate(i)
+        if get_score + score >= GOAL:
+            return i
     return 6  # Remove this line once implemented.
     # END PROBLEM 12
 
