@@ -210,11 +210,11 @@ def feline_fixes(typed, source, limit):
     # assert False, 'Remove this line'
     n = len(typed)
     m = len(source)
-    def helper(i, cnt):
+    def func(i, cnt):
         if cnt > limit or i == n  or i == m:
             return  cnt
-        return helper(i + 1, cnt + (1 if typed[i] != source[i] else 0))
-    return helper(0, abs(n - m))
+        return func(i + 1, cnt + (1 if typed[i] != source[i] else 0))
+    return func(0, abs(n - m))
     # END PROBLEM 6
 
 
@@ -254,10 +254,48 @@ def minimum_mewtations(start, goal, limit):
 def final_diff(typed, source, limit):
     """A diff function that takes in a string TYPED, a string SOURCE, and a number LIMIT.
     If you implement this function, it will be used."""
-    assert False, 'Remove this line to use your final_diff function.'
+
+    # feline_fixes
+    # Correction Speed: 53061.51624490433 wpm
+    # Correctly Corrected: 412 words
+    # Incorrectly Corrected: 416 words
+    # Uncorrected: 112 words
+
+    # minimum_mewtations
+    # Correction Speed: 221.30841364020722 wpm
+    # Correctly Corrected: 124 words
+    # Incorrectly Corrected: 29 words
+    # Uncorrected: 14 words
+
+    # lower or upper
+    # Correction Speed: 198.35455911033745 wpm
+    # Correctly Corrected: 120 words
+    # Incorrectly Corrected: 21 words
+    # Uncorrected: 8 words
+
+    if typed.lower == source or typed.upper == source:
+        return 0
+    n = len(typed)
+    m = len(source)
+    def func(i ,j, need):
+        if need > limit:  
+            return need
+        elif i == -1:  
+            return need + j + 1
+        elif j == -1:
+            return need + i + 1
+        else:
+            add = func(i, j - 1, need + 1)  
+            remove = func(i - 1, j, need + 1)
+            substitute = func(i - 1, j - 1, need + (0 if typed[i] == source[j] else 1))
+            res = min(add, remove, substitute)
+            return res
+    return func(n - 1, m - 1, 0)
+
+    
 
 
-FINAL_DIFF_LIMIT = 6  # REPLACE THIS WITH YOUR LIMIT
+FINAL_DIFF_LIMIT = 8  # REPLACE THIS WITH YOUR LIMIT
 
 
 ###########
@@ -319,7 +357,8 @@ def time_per_word(words, times_per_player):
     [[6, 3, 6, 2], [10, 6, 1, 2]]
     """
     # BEGIN PROBLEM 9
-    diff = [[player[i] - player[i - 1] for i in range(1, len(player))] for player in times_per_player]
+    diff = [[player[i] - player[i - 1] for i in range(1, len(player))] \
+            for player in times_per_player]
     res = match(words, diff)
     return res
     # END PROBLEM 9
@@ -343,7 +382,18 @@ def fastest_words(match):
     player_indices = range(len(get_all_times(match)))  # contains an *index* for each player
     word_indices = range(len(get_all_words(match)))    # contains an *index* for each word
     # BEGIN PROBLEM 10
-    "*** YOUR CODE HERE ***"
+    playlist = [[] for i in player_indices]
+    for i in word_indices:
+        word = get_word(match, i)
+        fast_player_id = 0
+        fast_time = time(match, fast_player_id, i)
+        for j in player_indices:
+            temp_time = time(match, j, i)
+            if temp_time < fast_time:
+                fast_player_id = j
+                fast_time = temp_time
+        playlist[fast_player_id].append(word)
+    return playlist
     # END PROBLEM 10
 
 
