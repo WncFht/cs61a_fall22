@@ -28,13 +28,16 @@ class Frame:
     def define(self, symbol, value):
         """Define Scheme SYMBOL to have VALUE."""
         # BEGIN PROBLEM 1
-        "*** YOUR CODE HERE ***"
+        self.bindings[symbol] = value 
         # END PROBLEM 1
 
     def lookup(self, symbol):
         """Return the value bound to SYMBOL. Errors if SYMBOL is not found."""
         # BEGIN PROBLEM 1
-        "*** YOUR CODE HERE ***"
+        if symbol in self.bindings:
+            return self.bindings[symbol] 
+        if self.parent != None:
+            return self.parent.lookup(symbol)
         # END PROBLEM 1
         raise SchemeError('unknown identifier: {0}'.format(symbol))
 
@@ -52,7 +55,13 @@ class Frame:
         if len(formals) != len(vals):
             raise SchemeError('Incorrect number of arguments to function call')
         # BEGIN PROBLEM 8
-        "*** YOUR CODE HERE ***"
+        child_frame = Frame(self)
+        curr_formal, curr_val = formals, vals
+        while curr_formal != nil:
+            child_frame.define(curr_formal.first, curr_val.first)
+            curr_formal = curr_formal.rest
+            curr_val = curr_val.rest
+        return child_frame
         # END PROBLEM 8
 
 ##############
@@ -99,7 +108,10 @@ class LambdaProcedure(Procedure):
         return 'LambdaProcedure({0}, {1}, {2})'.format(
             repr(self.formals), repr(self.body), repr(self.env))
 
-
+class MacroProcedure(LambdaProcedure):
+    def __init__(self, formals, body, env):
+        super().__inti__(formals, body, env)
+        self.eval_body = None
 class MuProcedure(Procedure):
     """A procedure defined by a mu expression, which has dynamic scope.
      _________________
