@@ -11,7 +11,7 @@ import scheme_forms
 ##############
 
 
-def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
+def scheme_eval(expr, env, tail=None):  # Optional third argument is ignored
     """Evaluate Scheme expression EXPR in Frame ENV.
 
     >>> expr = read_line('(+ 2 2)')
@@ -36,14 +36,15 @@ def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
         # BEGIN PROBLEM 3
         def helper(expr):
             return scheme_eval(expr, env)
-        
         operator = scheme_eval(first, env)
-        
         if isinstance(operator, MacroProcedure):
+            # tail-recursion
+            # eval_body = scheme_apply(operator, rest, env)
+            # return scheme_eval(eval_body, env)
+
             return scheme_eval(complete_apply(operator, rest, env), env, True)
         else:
             operands = rest.map(helper)
-        
         return scheme_apply(operator, operands, env)
         # END PROBLEM 3
 
@@ -130,6 +131,7 @@ def complete_apply(procedure, args, env):
     """Apply procedure to args in env; ensure the result is not an Unevaluated."""
     validate_procedure(procedure)
     val = scheme_apply(procedure, args, env)
+    # print("DEBUG: val =", val.expr)
     if isinstance(val, Unevaluated):
         return scheme_eval(val.expr, val.env)
     else:
@@ -147,7 +149,9 @@ def optimize_tail_calls(unoptimized_scheme_eval):
 
         result = Unevaluated(expr, env)
         # BEGIN PROBLEM EC
-        "*** YOUR CODE HERE ***"
+        while isinstance(result, Unevaluated):
+            result = unoptimized_scheme_eval(result.expr, result.env)
+        return result
         # END PROBLEM EC
     return optimized_eval
 
@@ -156,4 +160,4 @@ def optimize_tail_calls(unoptimized_scheme_eval):
 # Uncomment the following line to apply tail call optimization #
 ################################################################
 
-# scheme_eval = optimize_tail_calls(scheme_eval)
+scheme_eval = optimize_tail_calls(scheme_eval)
